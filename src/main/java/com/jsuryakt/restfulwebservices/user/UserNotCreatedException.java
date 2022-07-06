@@ -1,4 +1,4 @@
-package com.jsuryakt.restfulwebservices.exception;
+package com.jsuryakt.restfulwebservices.user;
 
 public class UserNotCreatedException extends RuntimeException {
     public UserNotCreatedException(String msg) {

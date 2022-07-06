@@ -1,13 +1,17 @@
 package com.jsuryakt.restfulwebservices.user;
 
-import com.jsuryakt.restfulwebservices.exception.UserNotCreatedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
 public class UserResource {
@@ -25,15 +29,20 @@ public class UserResource {
     }
 
     @GetMapping(path="/users/{id}")
-    public User retrieveUser(@PathVariable int id) {
+    public EntityModel<User> retrieveUser(@Valid @PathVariable int id) {
         User user = service.find(id);
         if(user == null)
             throw new UserNotFoundException("id-"+id);
-        return user;
+
+        EntityModel<User> model = EntityModel.of(user);
+        WebMvcLinkBuilder linkToUsers = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+        model.add(linkToUsers.withRel("all-users"));
+
+        return model;
     }
 
     @PostMapping(path="/users")
-    public ResponseEntity<Object> save(@RequestBody User user) {
+    public ResponseEntity<Object> save(@Valid @RequestBody User user) {
         User savedUser = service.save(user);
         if(savedUser == null) {
             throw new UserNotCreatedException("Failed to create user.");
@@ -44,5 +53,13 @@ public class UserResource {
                 .buildAndExpand(savedUser.getId())
                 .toUri();
         return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping(path="/users/{id}")
+    public User deleteUser(@Valid @PathVariable int id) {
+        User user = service.find(id);
+        if(user == null)
+            throw new UserNotFoundException("id-"+id);
+        return user;
     }
 }
