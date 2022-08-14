@@ -1,32 +1,44 @@
 package com.jsuryakt.restfulwebservices.post;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jsuryakt.restfulwebservices.user.User;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@Entity
 public class Post {
+    @Id
+    @GeneratedValue
     private Integer postId;
-    private Integer userId;
+
+    // will not get details of user unless we call post.getUser
     private String title;
     private String description;
     private String image;
     private Date timeStamp;
+    @ManyToOne(fetch= FetchType.LAZY)
+    @JsonIgnore
+    private User user;
 
-    public Post(Integer postId, Integer userId, String title, String description, String image, Date timeStamp) {
+    public Post() {
+    }
+
+    public Post(Integer postId, User user, String title, String description, String image, Date timeStamp) {
         this.postId = postId;
-        this.userId = userId;
+        this.user = user;
         this.title = title;
         this.description = description;
         this.image = image;
         this.timeStamp = timeStamp;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getTitle() {
